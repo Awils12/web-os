@@ -15,7 +15,6 @@
     monitor: ['📊', 'System Monitor'], store: ['🛍️', 'App Store'], paint: ['🎨', 'Paint'], clock: ['⏰', 'Clock']
   };
   let paletteItems = [];
-  let calc = { expression: '', result: '0' };
   let toastTimer;
 
   const say = (message) => {
@@ -33,7 +32,7 @@
     const query = filter.trim().toLowerCase();
     paletteItems = [
       ...Object.entries(appCatalog).map(([id, [icon, title]]) => ({ label: `Open ${title}`, icon, run: () => open(id) })),
-      { label: 'Search with Brave', icon: '🦁', run: () => openBraveSearch() },
+      { label: 'Search with Brave', icon: '🦁', run: () => open('browser') },
       { label: 'Change theme', icon: '🎨', run: () => cycleTheme() },
       { label: 'Toggle widgets', icon: '▦', run: () => toggleWidgets() },
       { label: 'Reset desktop layout', icon: '↺', run: () => resetDesktop() }
@@ -53,23 +52,14 @@
     if (paletteSearch) paletteSearch.value = '';
   }
 
-  function openBraveSearch(query = '') {
-    const target = query.trim() || 'WebOS';
-    const url = `${BRAVE_SEARCH}${encodeURIComponent(target)}`;
-    const opened = window.open(url, '_blank', 'noopener,noreferrer');
-    if (!opened) say('Allow pop-ups to open Brave Search');
-    else say('Opened Brave Search in a new tab');
-  }
-
   function cycleTheme() {
     const themes = ['aurora', 'sunset', 'midnight', 'forest'];
     let saved = {};
-    try { saved = JSON.parse(localStorage.getItem('webos-state') || '{}'); } catch { /* use default */ }
+    try { saved = JSON.parse(localStorage.getItem('webos-state') || '{}'); } catch { /* default */ }
     const current = themes.includes(saved.theme) ? saved.theme : 'aurora';
     const next = themes[(themes.indexOf(current) + 1) % themes.length];
     const themeButton = document.querySelector(`[data-theme="${next}"]`);
-    if (themeButton) themeButton.click();
-    else desktop.className = `desktop theme-${next}`;
+    if (themeButton) themeButton.click(); else desktop.className = `desktop theme-${next}`;
     say(`Theme changed to ${next}`);
   }
 
@@ -82,22 +72,6 @@
     if (!window.confirm('Reset open windows and desktop layout?')) return;
     localStorage.removeItem('webos-state');
     window.location.reload();
-  }
-
-  function calculatorInput(action) {
-    const display = document.querySelector('.calculator-display');
-    if (!display) return;
-    if (/^\d$/.test(action) || action === 'dot') calc.expression += action === 'dot' ? '.' : action;
-    else if (['add', 'subtract', 'multiply', 'divide'].includes(action)) calc.expression += ({ add: '+', subtract: '-', multiply: '*', divide: '/' }[action]);
-    else if (action === 'clear') calc = { expression: '', result: '0' };
-    else if (action === 'delete') calc.expression = calc.expression.slice(0, -1);
-    else if (action === 'percent') calc.expression = String(Number(calc.expression || 0) / 100);
-    else if (action === 'toggle') calc.expression = calc.expression.startsWith('-') ? calc.expression.slice(1) : `-${calc.expression}`;
-    else if (action === 'equals') {
-      if (!/^[0-9+*/.%()\- ]+$/.test(calc.expression)) return say('Invalid calculation');
-      try { calc.result = String(Function(`"use strict";return (${calc.expression})`)()); calc.expression = calc.result; } catch { calc.result = 'Error'; }
-    }
-    display.textContent = calc.expression || calc.result || '0';
   }
 
   function enhanceBrowser(windowElement) {
@@ -115,33 +89,47 @@
           <form class="brave-search-form">
             <input id="brave-address" value="https://search.brave.com" aria-label="Brave Search" autocomplete="off">
           </form>
-          <button type="button" class="brave-open" data-brave-external>Open externally ↗</button>
+          <button type="button" class="brave-open" data-brave-external>Open in browser ↗</button>
         </div>
         <div class="brave-home">
           <div class="brave-logo">🦁</div>
           <h1>Brave Search</h1>
-          <p>Private search for your WebOS workspace.</p>
+          <p>Search stays inside this WebOS window.</p>
           <form class="brave-main-form">
             <input class="brave-query" placeholder="Search the web with Brave…" autocomplete="off">
             <button class="primary-button" type="submit">Search</button>
           </form>
-          <small>Brave Search opens in a new tab because search providers may block embedded frames.</small>
+          <iframe class="brave-frame" title="Brave Search results" hidden></iframe>
+          <small class="brave-status">Results load in this window when the search provider permits iframe embedding. If blocked, use “Open in browser”.</small>
         </div>
       </div>`;
 
+    const frame = body.querySelector('.brave-frame');
+    const address = body.querySelector('#brave-address');
+    const status = body.querySelector('.brave-status');
+    const home = body.querySelector('.brave-home');
     const go = (value) => {
       const query = value.trim();
       if (!query) return;
       const url = /^https?:\/\//i.test(query) ? query : `${BRAVE_SEARCH}${encodeURIComponent(query)}`;
-      window.open(url, '_blank', 'noopener,noreferrer');
-      say('Opened Brave Search in a new tab');
+      frame.hidden = false;
+      frame.src = url;
+      address.value = url;
+      home.classList.add('has-results');
+      status.textContent = 'Loading results inside WebOS…';
+      frame.onload = () => { status.textContent = 'Results loaded inside WebOS.'; };
+      say('Loading Brave Search in this window');
     };
-    body.querySelector('.brave-search-form').addEventListener('submit', (event) => { event.preventDefault(); go(body.querySelector('#brave-address').value); });
+
+    body.querySelector('.brave-search-form').addEventListener('submit', (event) => { event.preventDefault(); go(address.value); });
     body.querySelector('.brave-main-form').addEventListener('submit', (event) => { event.preventDefault(); go(body.querySelector('.brave-query').value); });
-    body.querySelector('[data-brave-external]').addEventListener('click', () => go('https://search.brave.com'));
-    body.querySelector('[data-brave-nav="refresh"]').addEventListener('click', () => say('Brave Search is ready'));
-    body.querySelector('[data-brave-nav="back"]').addEventListener('click', () => say('Use the browser tab for back navigation'));
-    body.querySelector('[data-brave-nav="forward"]').addEventListener('click', () => say('Use the browser tab for forward navigation'));
+    body.querySelector('[data-brave-external]').addEventListener('click', () => {
+      go(address.value || 'https://search.brave.com');
+      say('Try the embedded result first; this button is only a fallback');
+    });
+    body.querySelector('[data-brave-nav="refresh"]').addEventListener('click', () => { if (frame.src) frame.src = frame.src; else say('Brave Search is ready'); });
+    body.querySelector('[data-brave-nav="back"]').addEventListener('click', () => { try { frame.contentWindow.history.back(); } catch { say('Back navigation is unavailable here'); } });
+    body.querySelector('[data-brave-nav="forward"]').addEventListener('click', () => { try { frame.contentWindow.history.forward(); } catch { say('Forward navigation is unavailable here'); } });
   }
 
   function enhanceAllBrowsers() { document.querySelectorAll('.window').forEach(enhanceBrowser); }
@@ -156,7 +144,6 @@
     paletteSearch?.addEventListener('input', (event) => renderPalette(event.target.value));
     $('#palette-results')?.addEventListener('click', (event) => { const button = event.target.closest('[data-palette-index]'); if (button) runPalette(Number(button.dataset.paletteIndex)); });
     quick?.addEventListener('click', (event) => { const action = event.target.closest('[data-quick]')?.dataset.quick; if (action === 'theme') cycleTheme(); if (action === 'widgets') toggleWidgets(); if (action === 'reset') resetDesktop(); if (action === 'about') say('WebOS — a safe, anime-free browser desktop'); });
-    document.addEventListener('click', (event) => { const button = event.target.closest('[data-calc]'); if (button) calculatorInput(button.dataset.calc); });
     document.addEventListener('keydown', (event) => {
       if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') { event.preventDefault(); palette?.classList.remove('hidden'); renderPalette(); paletteSearch?.focus(); }
       if (event.key === 'Escape') { launcher?.classList.add('hidden'); palette?.classList.add('hidden'); quick?.classList.add('hidden'); }
@@ -174,7 +161,7 @@
     if (date) date.textContent = now.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' });
   }
 
-  const observer = new MutationObserver(() => { enhanceAllBrowsers(); });
+  const observer = new MutationObserver(enhanceAllBrowsers);
   observer.observe(document.body, { childList: true, subtree: true });
   wire();
   updateWidgets();
