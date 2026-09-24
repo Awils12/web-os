@@ -1,60 +1,49 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#111827" />
-    <meta name="description" content="WebOS — a futuristic browser desktop built with HTML, CSS, and JavaScript." />
-    <title>WebOS</title>
-    <link rel="stylesheet" href="styles.css" />
-  </head>
-  <body>
-    <main id="desktop" class="desktop theme-aurora">
-      <div class="desktop-overlay"></div>
-
-      <header class="brand" aria-label="WebOS">
-        <div class="brand-logo">◈</div>
-        <div>
-          <strong>WebOS</strong>
-          <span>Personal workspace</span>
-        </div>
-      </header>
-
-      <section class="desktop-icons" aria-label="Desktop shortcuts">
-        <button class="desktop-icon" data-open="files"><span>📁</span><b>My Files</b></button>
-        <button class="desktop-icon" data-open="notes"><span>📝</span><b>Notes</b></button>
-        <button class="desktop-icon" data-open="browser"><span>🌐</span><b>Browser</b></button>
-        <button class="desktop-icon" data-open="calculator"><span>🧮</span><b>Calculator</b></button>
-      </section>
-
-      <section id="window-layer" aria-live="polite"></section>
-
-      <aside id="launcher" class="launcher glass hidden" aria-label="Application launcher">
-        <div class="launcher-top">
-          <div>
-            <small>APPLICATIONS</small>
-            <h2>Launch something</h2>
-          </div>
-          <button id="launcher-close" class="icon-btn" aria-label="Close launcher">×</button>
-        </div>
-        <input id="app-search" class="app-search" type="search" placeholder="Search apps…" autocomplete="off" />
-        <div id="app-grid" class="app-grid"></div>
-      </aside>
-
-      <footer class="taskbar glass">
-        <button id="start-button" class="start-button" aria-label="Open application launcher">◈</button>
-        <div id="taskbar-apps" class="taskbar-apps"></div>
-        <div class="tray">
-          <span title="Network">⌁</span>
-          <span title="Cloud sync">☁</span>
-          <span id="clock"></span>
-        </div>
-      </footer>
-
-      <div id="toast" class="toast" role="status" aria-live="polite"></div>
-      <input id="file-picker" type="file" hidden multiple />
-    </main>
-
-    <script src="app.js"></script>
-  </body>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#111827">
+  <meta name="description" content="WebOS — a clean, modular browser desktop workspace.">
+  <title>WebOS</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="enhancements.css">
+</head>
+<body>
+  <main id="desktop" class="desktop theme-aurora">
+    <div class="desktop-overlay"></div>
+    <header class="brand" aria-label="WebOS"><div class="brand-logo">◈</div><div><strong>WebOS</strong><span>Personal workspace</span></div></header>
+    <section class="desktop-icons" aria-label="Desktop shortcuts">
+      <button class="desktop-icon" data-open="files"><span>📁</span><b>My Files</b></button>
+      <button class="desktop-icon" data-open="notes"><span>📝</span><b>Notes</b></button>
+      <button class="desktop-icon" data-open="browser"><span>🌐</span><b>Browser</b></button>
+      <button class="desktop-icon" data-open="calculator"><span>🧮</span><b>Calculator</b></button>
+    </section>
+    <section id="widgets" class="widgets" aria-label="Desktop widgets">
+      <div class="widget glass"><span class="widget-label">TIME</span><strong id="widget-time">--:--</strong><small id="widget-date">Loading…</small></div>
+      <div class="widget glass"><span class="widget-label">SYSTEM</span><strong>WebOS ready</strong><small>All systems operational</small></div>
+    </section>
+    <section id="window-layer" aria-live="polite"></section>
+    <aside id="launcher" class="launcher glass hidden" aria-label="Application launcher">
+      <div class="launcher-top"><div><small>APPLICATIONS</small><h2>Launch something</h2></div><button id="launcher-close" class="icon-btn" aria-label="Close launcher">×</button></div>
+      <input id="app-search" class="app-search" type="search" placeholder="Search apps…" autocomplete="off">
+      <div id="app-grid" class="app-grid"></div>
+    </aside>
+    <aside id="command-palette" class="command-palette glass hidden" aria-label="Command palette">
+      <div class="palette-heading"><span>COMMAND PALETTE</span><button id="palette-close" class="icon-btn">×</button></div>
+      <input id="palette-search" class="app-search" type="search" placeholder="Type an app or action…" autocomplete="off">
+      <div id="palette-results"></div>
+      <small class="palette-hint">Enter to run · Esc to close · Ctrl/⌘ + K to open</small>
+    </aside>
+    <aside id="quick-panel" class="quick-panel glass hidden" aria-label="Quick settings">
+      <div class="palette-heading"><span>QUICK SETTINGS</span><button id="quick-close" class="icon-btn">×</button></div>
+      <button data-quick="theme">🎨 Change theme</button><button data-quick="widgets">▦ Toggle widgets</button><button data-quick="reset">↺ Reset desktop</button><button data-quick="about">ⓘ About WebOS</button>
+    </aside>
+    <footer class="taskbar glass"><button id="start-button" class="start-button" aria-label="Open launcher">◈</button><button id="palette-button" class="taskbar-tool" aria-label="Open command palette">⌕</button><div id="taskbar-apps" class="taskbar-apps"></div><div class="tray"><button id="quick-button" class="tray-button" aria-label="Open quick settings">☷</button><span title="Network">⌁</span><span title="Cloud sync">☁</span><span id="clock"></span></div></footer>
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    <input id="file-picker" type="file" hidden multiple accept="image/*,audio/*,text/plain,.md,.json,.csv,.pdf,.zip">
+  </main>
+  <script src="app.js"></script>
+  <script src="enhancements.js"></script>
+</body>
 </html>
