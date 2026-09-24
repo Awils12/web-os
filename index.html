@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#111827">
+  <meta name="description" content="WebOS — a polished browser desktop built with HTML, CSS, and JavaScript.">
+  <title>WebOS</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main id="desktop" class="desktop theme-aurora">
+    <div class="desktop-overlay"></div>
+    <header class="brand" aria-label="WebOS">
+      <div class="brand-logo">◈</div>
+      <div><strong>WebOS</strong><span>Personal workspace</span></div>
+    </header>
+
+    <section class="desktop-icons" aria-label="Desktop">
+      <button class="desktop-icon" data-open="files"><span>📁</span><b>My Files</b></button>
+      <button class="desktop-icon" data-open="notes"><span>📝</span><b>Notes</b></button>
+      <button class="desktop-icon" data-open="browser"><span>🌐</span><b>Web Browser</b></button>
+    </section>
+
+    <section id="window-layer" aria-live="polite"></section>
+
+    <section id="launcher" class="launcher glass hidden" aria-label="Application launcher">
+      <div class="launcher-top"><div><small>APPLICATIONS</small><h2>What will you open?</h2></div><button id="launcher-close" class="icon-btn">×</button></div>
+      <input id="app-search" class="app-search" type="search" placeholder="Search applications…" autocomplete="off">
+      <div id="app-grid" class="app-grid"></div>
+    </section>
+
+    <footer class="taskbar glass">
+      <button id="start-button" class="start-button" aria-label="Open application launcher">◈</button>
+      <div id="taskbar-apps" class="taskbar-apps"></div>
+      <div class="tray"><span title="Network">⌁</span><span title="Cloud sync">☁</span><span id="clock"></span></div>
+    </footer>
+
+    <div id="toast" class="toast" role="status"></div>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>
