@@ -6,7 +6,7 @@ WebOS is a clean, modular browser desktop built with plain HTML, CSS, and JavaSc
 
 Files, Notes, Terminal, Settings, Browser, Calculator, Music, Gallery, System Monitor, App Store, Paint, and Clock.
 
-## Workspace features
+## Desktop features
 
 - Draggable, minimizable, maximizable, and closable windows
 - Searchable app launcher and command palette
@@ -15,13 +15,14 @@ Files, Notes, Terminal, Settings, Browser, Calculator, Music, Gallery, System Mo
 - Four themes with persistent preferences
 - Notes autosave and safe file uploads
 - Calculator, Music, Gallery, Monitor, Store, Paint, Browser, and Terminal tools
+- Brave Search browser experience with an in-window embedded-results attempt
+- Fallback messaging when a search provider blocks iframe embedding
+- New custom WebOS favicon and installable web app manifest
 - No executable-file upload, storage, download, or execution support
 
-## Brave Search browser
+## Browser behavior
 
-The Browser app now provides a Brave Search experience. It includes a search box, an address/search bar, refresh and navigation feedback, and an **Open externally** button.
-
-Brave Search and Google can block iframe embedding with browser security headers. For that reason, WebOS opens searches in a normal new browser tab instead of trying to bypass those protections. This is more reliable and respects the search provider's security policy.
+WebOS tries to keep searches inside the Browser app window. Brave Search and other sites may block iframe embedding with security headers, so the app displays a clear in-window fallback instead of bypassing those protections or automatically opening a new tab.
 
 ## Security
 
