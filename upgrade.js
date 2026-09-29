@@ -110,4 +110,8 @@
   window.addEventListener('load', () => {
     if ('serviceWorker' in navigator && location.protocol !== 'file:') navigator.serviceWorker.register('sw.js').catch(() => {});
   });
+  const wow = document.createElement('script');
+  wow.src = 'wow.js';
+  wow.defer = true;
+  document.head.appendChild(wow);
 })();
