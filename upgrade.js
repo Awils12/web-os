@@ -1,117 +1,231 @@
-(() => {
-  'use strict';
-  const $ = (selector, root = document) => root.querySelector(selector);
-  const desktop = $('#desktop');
-  const menu = $('#upgrade-menu');
-  const toast = $('#toast');
-  let menuTimer;
-  let hintTimer;
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#111827">
+  <meta name="description" content="WebOS — a clean, modular browser desktop workspace.">
+  <meta name="application-name" content="WebOS">
+  <meta name="color-scheme" content="dark">
+  <title>WebOS</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="manifest" href="site.webmanifest">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="enhancements.css">
+  <link rel="stylesheet" href="upgrade.css">
+</head>
+<body>
+  <main id="desktop" class="desktop theme-aurora">
+    <div class="desktop-overlay"></div>
+    <header class="brand" aria-label="WebOS"><div class="brand-logo">◈</div><div><strong>WebOS</strong><span>Personal workspace</span></div></header>
+    <section class="desktop-icons" aria-label="Desktop shortcuts">
+      <button class="desktop-icon" data-open="files"><span>📁</span><b>My Files</b></button>
+      <button class="desktop-icon" data-open="notes"><span>📝</span><b>Notes</b></button>
+      <button class="desktop-icon" data-open="browser"><span>🌐</span><b>Browser</b></button>
+      <button class="desktop-icon" data-open="calculator"><span>🧮</span><b>Calculator</b></button>
+    </section>
+    <section id="widgets" class="widgets" aria-label="Desktop widgets">
+      <div class="widget glass"><span class="widget-label">TIME</span><strong id="widget-time">--:--</strong><small id="widget-date">Loading…</small></div>
+      <div class="widget glass"><span class="widget-label">SYSTEM</span><strong>WebOS ready</strong><small>All systems operational</small></div>
+    </section>
+    <section id="window-layer" aria-live="polite"></section>
+    <aside id="launcher" class="launcher glass hidden" aria-label="Application launcher">
+      <div class="launcher-top"><div><small>APPLICATIONS</small><h2>Launch something</h2></div><button id="launcher-close" class="icon-btn" aria-label="Close launcher">×</button></div>
+      <input id="app-search" class="app-search" type="search" placeholder="Search apps…" autocomplete="off">
+      <div id="app-grid" class="app-grid"></div>
+    </aside>
+    <aside id="command-palette" class="command-palette glass hidden" aria-label="Command palette">
+      <div class="palette-heading"><span>COMMAND PALETTE</span><button id="palette-close" class="icon-btn" aria-label="Close command palette">×</button></div>
+      <input id="palette-search" class="app-search" type="search" placeholder="Type an app or action…" autocomplete="off">
+      <div id="palette-results"></div>
+      <small class="palette-hint">Enter to run · Esc to close · Ctrl/⌘ + K to open</small>
+    </aside>
+    <aside id="quick-panel" class="quick-panel glass hidden" aria-label="Quick settings">
+      <div class="palette-heading"><span>QUICK SETTINGS</span><button id="quick-close" class="icon-btn" aria-label="Close quick settings">×</button></div>
+      <button data-quick="theme">🎨 Change theme</button><button data-quick="widgets">▦ Toggle widgets</button><button data-quick="reset">↺ Reset desktop</button><button data-quick="about">ⓘ About WebOS</button>
+    </aside>
+    <aside id="upgrade-menu" class="upgrade-menu glass hidden" aria-label="Desktop menu">
+      <button data-upgrade-action="launcher">⌕ Search applications</button>
+      <button data-upgrade-action="notes">📝 Quick note</button>
+      <button data-upgrade-action="refresh">↻ Refresh desktop</button>
+      <button data-upgrade-action="about">◈ About this WebOS</button>
+    </aside>
+    <footer class="taskbar glass">
+      <button id="start-button" class="start-button" aria-label="Open launcher">◈</button>
+      <button id="palette-button" class="taskbar-tool" aria-label="Open command palette">⌘</button>
+      <div id="taskbar-apps" class="taskbar-apps"></div>
+      <div class="tray"><span>🔒</span><span>WebOS</span></div>
+    </footer>
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    <input id="file-picker" type="file" hidden multiple accept="image/*,audio/*,text/plain,.md,.json,.csv,.pdf,.zip">
+  </main>
+  <script src="app.js"></script>
+  <script src="wow.js"></script>
+  <script src="enhancements.js"></script>
+  <script src="upgrade.js"></script>
+</body>
+</html>
 
-  function message(text) {
-    if (typeof window.notify === 'function') { window.notify(text); return; }
-    if (!toast) return;
-    toast.textContent = text;
-    toast.classList.add('show');
-    clearTimeout(menuTimer);
-    menuTimer = setTimeout(() => toast.classList.remove('show'), 2200);
-  }
+"""""""""""""""""""""""""""
 
-  function launch(id) {
-    const button = document.querySelector(`[data-launch="${id}"]`) || document.querySelector(`[data-open="${id}"]`);
-    if (button) { button.click(); return true; }
-    return false;
-  }
 
-  function showHint(text) {
-    let hint = $('.shortcut-hint');
-    if (!hint) { hint = document.createElement('div'); hint.className = 'shortcut-hint'; document.body.appendChild(hint); }
-    hint.textContent = text;
-    hint.classList.add('show');
-    clearTimeout(hintTimer);
-    hintTimer = setTimeout(() => hint.classList.remove('show'), 1800);
-  }
 
-  function openLauncher() {
-    const button = $('#start-button');
-    if (button) button.click();
-  }
 
-  function openQuickNote() {
-    if (!launch('notes')) return;
-    message('Notes opened — your writing saves automatically');
-  }
 
-  function refreshDesktop() {
-    document.querySelectorAll('.window').forEach((windowElement) => windowElement.classList.remove('focused'));
-    message('Desktop refreshed');
-  }
 
-  function closeOverlays() {
-    document.querySelectorAll('.launcher,.command-palette,.quick-panel').forEach((element) => element.classList.add('hidden'));
-    menu.classList.add('hidden');
-  }
 
-  function focusNextWindow(reverse = false) {
-    const windows = [...document.querySelectorAll('.window')];
-    if (!windows.length) { message('No open windows'); return; }
-    const current = windows.findIndex((windowElement) => windowElement.classList.contains('focused'));
-    windows.forEach((windowElement) => windowElement.classList.remove('focused'));
-    const next = (current + (reverse ? -1 : 1) + windows.length) % windows.length;
-    const selected = windows[next];
-    selected.classList.add('focused');
-    selected.scrollIntoView({ block: 'nearest', inline: 'nearest' });
-    const title = selected.querySelector('.window-title')?.textContent?.trim() || 'window';
-    showHint(`Focused: ${title}`);
-  }
 
-  document.addEventListener('contextmenu', (event) => {
-    if (event.target.closest('.window,input,textarea,button,select')) return;
-    event.preventDefault();
-    menu.style.left = `${Math.min(event.clientX, window.innerWidth - 240)}px`;
-    menu.style.top = `${Math.min(event.clientY, window.innerHeight - 190)}px`;
-    menu.classList.remove('hidden');
-  });
 
-  document.addEventListener('click', (event) => {
-    const action = event.target.closest('[data-upgrade-action]')?.dataset.upgradeAction;
-    if (action === 'launcher') openLauncher();
-    if (action === 'notes') openQuickNote();
-    if (action === 'refresh') refreshDesktop();
-    if (action === 'about') message('WebOS — modular, browser-only, and safe');
-    if (action) menu.classList.add('hidden');
-    if (!event.target.closest('#upgrade-menu')) menu.classList.add('hidden');
-  });
 
-  document.addEventListener('dblclick', (event) => {
-    if (event.target.closest('.desktop') && !event.target.closest('.window,.desktop-icon,.taskbar,.launcher,.command-palette,.quick-panel')) openLauncher();
-  });
 
-  document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape') closeOverlays();
-    if (event.key === 'F1') { event.preventDefault(); message('Shortcuts: Ctrl/⌘+K palette · Alt+Tab apps · Shift+Alt+F focus mode · right-click desktop menu'); }
-    if (event.altKey && event.key === 'Tab') { event.preventDefault(); focusNextWindow(event.shiftKey); }
-    if (event.shiftKey && event.altKey && event.key.toLowerCase() === 'f') {
-      event.preventDefault(); desktop.classList.toggle('focus-mode'); showHint(desktop.classList.contains('focus-mode') ? 'Focus mode enabled' : 'Focus mode disabled');
-    }
-    if (event.key === '/' && !['INPUT','TEXTAREA'].includes(document.activeElement?.tagName)) { event.preventDefault(); openLauncher(); }
-  });
 
-  document.addEventListener('mousedown', (event) => {
-    const windowElement = event.target.closest('.window');
-    if (!windowElement) return;
-    document.querySelectorAll('.window').forEach((item) => item.classList.remove('focused'));
-    windowElement.classList.add('focused');
-  });
 
-  const prefersReduced = window.matchMedia?.('(prefers-reduced-motion: reduce)');
-  if (prefersReduced?.matches) document.documentElement.classList.add('reduce-motion');
-  window.addEventListener('online', () => message('Back online'));
-  window.addEventListener('offline', () => message('Offline mode — local apps still work'));
-  window.addEventListener('load', () => {
-    if ('serviceWorker' in navigator && location.protocol !== 'file:') navigator.serviceWorker.register('sw.js').catch(() => {});
-  });
-  const wow = document.createElement('script');
-  wow.src = 'wow.js';
-  wow.defer = true;
-  document.head.appendChild(wow);
-})();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+"""
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
