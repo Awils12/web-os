@@ -6,11 +6,13 @@
   <meta name="theme-color" content="#111827">
   <meta name="description" content="WebOS — a clean, modular browser desktop workspace.">
   <meta name="application-name" content="WebOS">
+  <meta name="color-scheme" content="dark">
   <title>WebOS</title>
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <link rel="manifest" href="site.webmanifest">
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="enhancements.css">
+  <link rel="stylesheet" href="upgrade.css">
 </head>
 <body>
   <main id="desktop" class="desktop theme-aurora">
@@ -40,21 +42,20 @@
     </aside>
     <aside id="quick-panel" class="quick-panel glass hidden" aria-label="Quick settings">
       <div class="palette-heading"><span>QUICK SETTINGS</span><button id="quick-close" class="icon-btn" aria-label="Close quick settings">×</button></div>
-      <button data-quick="theme">🎨 Change theme</button>
-      <button data-quick="widgets">▦ Toggle widgets</button>
-      <button data-quick="reset">↺ Reset desktop</button>
-      <button data-quick="about">ⓘ About WebOS</button>
+      <button data-quick="theme">🎨 Change theme</button><button data-quick="widgets">▦ Toggle widgets</button><button data-quick="reset">↺ Reset desktop</button><button data-quick="about">ⓘ About WebOS</button>
     </aside>
-    <footer class="taskbar glass">
-      <button id="start-button" class="start-button" aria-label="Open launcher">◈</button>
-      <button id="palette-button" class="taskbar-tool" aria-label="Open command palette">⌕</button>
-      <div id="taskbar-apps" class="taskbar-apps"></div>
-      <div class="tray"><button id="quick-button" class="tray-button" aria-label="Open quick settings">☷</button><span title="Network">⌁</span><span title="Cloud sync">☁</span><span id="clock"></span></div>
-    </footer>
+    <aside id="upgrade-menu" class="upgrade-menu glass hidden" aria-label="Desktop menu">
+      <button data-upgrade-action="launcher">⌕ Search applications</button>
+      <button data-upgrade-action="notes">📝 Quick note</button>
+      <button data-upgrade-action="refresh">↻ Refresh desktop</button>
+      <button data-upgrade-action="about">◈ About this WebOS</button>
+    </aside>
+    <footer class="taskbar glass"><button id="start-button" class="start-button" aria-label="Open launcher">◈</button><button id="palette-button" class="taskbar-tool" aria-label="Open command palette">⌕</button><div id="taskbar-apps" class="taskbar-apps"></div><div class="tray"><button id="quick-button" class="tray-button" aria-label="Open quick settings">☷</button><span title="Network">⌁</span><span title="Cloud sync">☁</span><span id="clock"></span></div></footer>
     <div id="toast" class="toast" role="status" aria-live="polite"></div>
     <input id="file-picker" type="file" hidden multiple accept="image/*,audio/*,text/plain,.md,.json,.csv,.pdf,.zip">
   </main>
   <script src="app.js"></script>
   <script src="enhancements.js"></script>
+  <script src="upgrade.js"></script>
 </body>
 </html>
